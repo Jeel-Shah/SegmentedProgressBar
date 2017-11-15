@@ -22,6 +22,8 @@ class SegmentedProgressBar : View {
   private lateinit var drawingTimer: DrawingTimer
   private lateinit var properties: PropertiesModel
 
+  var progressListener: ProgressCompletedListener? = null
+
   constructor(context: Context) : super(context) {
     initView()
   }
@@ -46,10 +48,13 @@ class SegmentedProgressBar : View {
     drawingTimer.setListener { currentTicks, totalTicks ->
       val segmentWidth = segmentWidth
 
+      progressListener?.progressCompleted(false, lastCompletedSegment)
+
       currentSegmentProgressInPx = currentTicks * segmentWidth / totalTicks
       if (totalTicks <= currentTicks) {
         lastCompletedSegment++
         currentSegmentProgressInPx = 0
+        progressListener?.progressCompleted(true, lastCompletedSegment)
       }
       invalidate()
     }
@@ -98,6 +103,7 @@ class SegmentedProgressBar : View {
       currentSegmentProgressInPx = 0
       drawingTimer.reset()
       lastCompletedSegment = completedSegments
+      progressListener?.progressCompleted(true, lastCompletedSegment)
       invalidate()
     }
   }
@@ -107,8 +113,13 @@ class SegmentedProgressBar : View {
       currentSegmentProgressInPx = 0
       drawingTimer.reset()
       lastCompletedSegment++
+      progressListener?.progressCompleted(true, lastCompletedSegment)
       invalidate()
     }
+  }
+
+  fun setProgressCompletedListener(progressListener: ProgressCompletedListener) {
+    this.progressListener = progressListener
   }
 
   /*
@@ -204,4 +215,8 @@ class SegmentedProgressBar : View {
 
   private val segmentWidth: Int
     get() = width / properties.segmentCount - properties.segmentGapWidth
+
+  interface ProgressCompletedListener {
+    fun progressCompleted(isCompleted: Boolean, finishedSegments: Int)
+  }
 }
