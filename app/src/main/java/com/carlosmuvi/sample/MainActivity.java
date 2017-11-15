@@ -1,6 +1,7 @@
 package com.carlosmuvi.sample;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -14,6 +15,8 @@ public class MainActivity extends AppCompatActivity {
     Button pauseResumeButton;
     Button resetButton;
 
+    int totalSegments;
+
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -24,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
         pauseResumeButton = (Button) findViewById(R.id.button3);
         resetButton = (Button) findViewById(R.id.button2);
         startWithoutAnimationButton = (Button) findViewById(R.id.button4);
+
+        totalSegments = segmentedProgressBar.getTotalSegments();
 
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
@@ -40,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
         startWithoutAnimationButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 segmentedProgressBar.incrementCompletedSegments();
@@ -49,6 +55,20 @@ public class MainActivity extends AppCompatActivity {
         resetButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 segmentedProgressBar.reset();
+            }
+        });
+
+        segmentedProgressBar.setProgressCompletedListener(new SegmentedProgressBar.ProgressCompletedListener() {
+            @Override
+            public void progressCompleted(boolean isCompleted, int finishedSegments) {
+                if(isCompleted && finishedSegments < totalSegments) {
+                    new Handler().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            segmentedProgressBar.playSegment(3000);
+                        }
+                    });
+                }
             }
         });
     }

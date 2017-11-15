@@ -97,6 +97,7 @@ class SegmentedProgressBar : View {
   fun resume() = drawingTimer.resume()
   fun reset() = setCompletedSegments(0)
   fun isPaused() = drawingTimer.isPaused
+  fun getTotalSegments() = properties.segmentCount
 
   fun setCompletedSegments(completedSegments: Int) {
     if (completedSegments <= properties.segmentCount) {
